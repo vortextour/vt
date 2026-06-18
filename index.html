@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vortex Tour - Download</title>
+    
+    <!-- Futuristic Gaming Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- === AUTO EXTERNAL BROWSER REDIRECT FOR FB/MESSENGER === -->
+    <script>
+        (function autoRedirectToChrome() {
+            var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            var isFB = (userAgent.indexOf("FBAN") > -1) || (userAgent.indexOf("FBAV") > -1) || (userAgent.indexOf("Messenger") > -1);
+            var isAndroid = /android/i.test(userAgent);
+
+            if (isFB) {
+                if (isAndroid) {
+                    // Android devices auto-redirect
+                    var currentUrl = window.location.href.replace('https://', '').replace('http://', '');
+                    var chromeIntent = "intent://" + currentUrl + "#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;package=com.android.chrome;end;";
+                    var defaultIntent = "intent://" + currentUrl + "#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end;";
+
+                    // প্রথমে ক্রোমে খোলার ট্রাই করবে
+                    window.location.replace(chromeIntent);
+
+                    // ক্রোম না থাকলে অন্য ডিফল্ট ব্রাউজারে পাঠাবে
+                    setTimeout(function() {
+                        window.location.replace(defaultIntent);
+                    }, 1000);
+                } else {
+                    // iOS বা অন্যান্য ডিভাইসের জন্য ম্যানুয়াল পপআপ (যেহেতু iOS এ Intent কাজ করে না)
+                    alert("ফেসবুক বা মেসেঞ্জার থেকে সরাসরি অ্যাপ ডাউনলোড করা যায় না।\n\nউপরে ডানদিকের থ্রি-ডট (⋮) মেনুতে ক্লিক করে 'Open in external Browser' বা 'Safari' সিলেক্ট করুন।");
+                }
+            }
+        })();
+    </script>
+    
+    <style>
+        /* === BASE & CSS RESET === */
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+
+        :root {
+            --bg-color: #03030a;
+            --neon-blue: #00f3ff;
+            --neon-purple: #bc13fe;
+            --neon-pink: #ff107a;
+            --neon-orange: #ff6a00;
+            --font-title: 'Orbitron', sans-serif;
+            --font-body: 'Rajdhani', sans-serif;
+        }
+
+        body, html {
+            width: 100%; height: 100%;
+            background-color: var(--bg-color); color: #fff;
+            overflow: hidden; font-family: var(--font-body);
+            perspective: 1000px;
+        }
+
+        /* === BACKGROUND LAYERS === */
+        #canvas-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
+        }
+
+        .ambient-glow {
+            position: absolute; top: 50%; left: 50%; width: 80vw; height: 80vw;
+            background: radial-gradient(circle, rgba(255, 106, 0, 0.08) 0%, rgba(0, 243, 255, 0.04) 40%, transparent 70%);
+            transform: translate(-50%, -50%); z-index: 1;
+            animation: pulse-glow 8s ease-in-out infinite alternate;
+        }
+
+        .fog-container {
+            position: absolute; width: 200%; height: 200%; top: -50%; left: -50%; z-index: 2;
+            pointer-events: none; opacity: 0.4;
+            background: radial-gradient(circle at 20% 30%, rgba(0, 243, 255, 0.05) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(255, 106, 0, 0.06) 0%, transparent 40%);
+            filter: blur(40px);
+        }
+
+        /* === CENTERPIECE CARD (Optimized Anti-Flicker) === */
+        .main-container {
+            position: relative; z-index: 10; display: flex; justify-content: center; align-items: center;
+            width: 100%; height: 100%;
+            animation: cinematic-intro 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .glass-card {
+            position: relative; width: 90%; max-width: 480px; padding: 45px 25px;
+            border-radius: 24px;
+            background: rgba(10, 15, 30, 0.5); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.05);
+            text-align: center;
+            transform-style: preserve-3d;
+            will-change: transform; /* Stop jitter */
+        }
+
+        /* === CIRCULAR IMAGE === */
+        .profile-wrapper {
+            position: relative; width: 120px; height: 120px; margin: 0 auto 20px auto;
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            transform: translateZ(30px); 
+        }
+
+        .profile-anim-border {
+            position: absolute; inset: -4px; border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--neon-orange), var(--neon-pink), var(--neon-blue), var(--neon-orange));
+            animation: spin 3s linear infinite; z-index: 1; filter: blur(3px);
+        }
+
+        .profile-img {
+            position: relative; width: 100%; height: 100%; border-radius: 50%;
+            object-fit: cover; z-index: 2; border: 4px solid #0a0f1e; 
+        }
+
+        /* === ORIGINAL TITLE ANIMATION (RESTORED) === */
+        .title {
+            font-family: var(--font-title); 
+            font-size: 2.8rem; 
+            font-weight: 900; 
+            line-height: 1.1; 
+            margin-bottom: 12px;
+            background: linear-gradient(to right, var(--neon-orange), #fff, var(--neon-pink), var(--neon-blue), var(--neon-orange));
+            background-size: 200% auto; 
+            color: transparent; 
+            -webkit-background-clip: text; 
+            background-clip: text;
+            animation: gradient-shimmer 4s linear infinite; 
+            filter: drop-shadow(0 0 10px rgba(255, 106, 0, 0.3));
+            transform: translateZ(25px); 
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 1.15rem; font-weight: 500; color: rgba(255, 255, 255, 0.85); letter-spacing: 0.5px;
+            line-height: 1.4; margin-bottom: 35px; transform: translateZ(20px); padding: 0 10px;
+        }
+
+        /* === CTA BUTTON (SPINNING ANIMATION + ANTI-JITTER) === */
+        .cta-container {
+            transform: translateZ(40px);
+        }
+
+        .cta-btn {
+            position: relative; display: inline-flex; justify-content: center; align-items: center; gap: 10px;
+            width: 100%; max-width: 280px; height: 65px;
+            font-family: var(--font-title); font-weight: 900; font-size: 1.25rem; letter-spacing: 2px;
+            color: #fff; text-decoration: none; background: transparent; border: none; border-radius: 40px;
+            cursor: pointer; overflow: hidden; outline: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-transform: uppercase; box-shadow: 0 10px 20px rgba(0,0,0,0.5); z-index: 1;
+            
+            /* Anti Jitter/Flicker properties */
+            -webkit-backface-visibility: hidden; backface-visibility: hidden;
+            transform: translateZ(0); will-change: transform;
+        }
+
+        /* Spinning Gradient Border */
+        .cta-btn::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(from 0deg, transparent 0%, transparent 60%, var(--neon-orange) 70%, var(--neon-pink) 85%, var(--neon-blue) 100%);
+            animation: spin 2.5s linear infinite; z-index: -2;
+            will-change: transform;
+        }
+
+        /* Solid Dark Background Inside */
+        .cta-btn::after {
+            content: ''; position: absolute; inset: 3px; background: rgba(13, 19, 38, 1);
+            border-radius: 35px; z-index: -1; transition: background 0.3s ease;
+        }
+
+        .cta-btn span, .cta-btn i {
+            position: relative; z-index: 2; pointer-events: none; color: #fff;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.6); transition: text-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .cta-btn:hover {
+            transform: scale(1.05); box-shadow: 0 0 25px rgba(255, 106, 0, 0.4), 0 0 50px rgba(0, 243, 255, 0.2);
+        }
+
+        .cta-btn:hover::after { background: rgba(21, 28, 51, 1); }
+        .cta-btn:hover span, .cta-btn:hover i { text-shadow: 0 0 15px rgba(255, 255, 255, 1); transform: scale(1.02); }
+        .cta-btn:active { transform: scale(0.98); }
+
+        .footer-text {
+            font-size: 0.85rem; color: rgba(255,255,255,0.4); margin-top: 25px; transform: translateZ(10px);
+        }
+
+        .ripple {
+            position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.6);
+            transform: scale(0); animation: ripple-anim 0.6s linear; pointer-events: none; z-index: 1;
+        }
+
+        #cursor-flare {
+            position: fixed; top: 0; left: 0; width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(0, 243, 255, 0.1) 0%, transparent 60%);
+            border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%); z-index: 5;
+        }
+
+        /* === ANIMATIONS === */
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes gradient-shimmer { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+        @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
+        @keyframes cinematic-intro { 0% { opacity: 0; transform: scale(1.05) translateY(20px); filter: blur(5px); } 100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0px); } }
+
+        @media (max-width: 480px) {
+            .title { font-size: 2.2rem; }
+            .cta-btn { font-size: 1.15rem; height: 60px; max-width: 260px; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas-container"></canvas>
+    <div class="fog-container"></div>
+    <div class="ambient-glow"></div>
+    <div id="cursor-flare"></div>
+
+    <main class="main-container" id="main-container">
+        <div class="glass-card" id="glass-card">
+            
+            <div class="profile-wrapper">
+                <div class="profile-anim-border"></div>
+                <!-- লোগো ইমেজ ঠিক রাখবেন -->
+                <img src="VT.png" alt="Vortex Tour Logo" class="profile-img">
+            </div>
+
+            <h1 class="title">VORTEX<br>TOUR</h1>
+            <p class="subtitle">Join Free Fire Tournaments, fight with real players, and earn rewards based purely on your skills.</p>
+            
+            <div class="cta-container">
+                <!-- 🔴 নিচে গিটহাব রিলিজের ডাইরেক্ট ডাউনলোড লিংক বসাবেন 🔴 -->
+                <a href="https://github.com/vortextour/AppDownload/releases/download/v1.0.0/VortexTour.apk" class="cta-btn" id="cta-btn">
+                    <i class="fas fa-download"></i> <span>DOWNLOAD APP</span>
+                </a>
+            </div>
+
+            <p class="footer-text">© Vortex Tour 2026. All rights reserved.</p>
+        </div>
+    </main>
+
+    <script>
+        // === CANVAS PARTICLE SYSTEM ===
+        const canvas = document.getElementById('canvas-container');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        let stars = [];
+        const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2, radius: 100 };
+
+        function initCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            particles = []; stars = [];
+            
+            for(let i = 0; i < 100; i++) {
+                stars.push({ x: Math.random() * width, y: Math.random() * height, radius: Math.random() * 1.5, alpha: Math.random() });
+            }
+            for(let i = 0; i < 40; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width; this.y = Math.random() * height;
+                this.size = Math.random() * 2 + 0.5;
+                const pColors = ['#00f3ff', '#ff6a00', '#ff107a'];
+                this.color = pColors[Math.floor(Math.random() * pColors.length)];
+                this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                if(this.x > width) this.x = 0; if(this.x < 0) this.x = width;
+                if(this.y > height) this.y = 0; if(this.y < 0) this.y = height;
+
+                let dx = mouse.x - this.x; let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < mouse.radius) {
+                    this.x -= (dx / distance) * 1.5;
+                    this.y -= (dy / distance) * 1.5;
+                }
+                
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, width, height);
+            stars.forEach(star => {
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+                ctx.beginPath(); ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2); ctx.fill();
+                star.alpha += (Math.random() - 0.5) * 0.02;
+                if(star.alpha < 0) star.alpha = 0; if(star.alpha > 1) star.alpha = 1;
+            });
+            particles.forEach(p => p.update());
+            requestAnimationFrame(animateCanvas);
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas(); animateCanvas();
+
+        // === 3D CARD TILT ===
+        const card = document.getElementById('glass-card');
+        const cursorFlare = document.getElementById('cursor-flare');
+
+        let targetX = width / 2; let targetY = height / 2;
+        let currentX = width / 2; let currentY = height / 2;
+
+        window.addEventListener('mousemove', (e) => {
+            targetX = e.clientX; targetY = e.clientY;
+            mouse.x = e.clientX; mouse.y = e.clientY;
+        });
+
+        window.addEventListener("deviceorientation", (e) => {
+            if (e.beta && e.gamma) {
+                targetX = width/2 + (e.gamma * 3.5); 
+                targetY = height/2 + ((e.beta - 45) * 3.5); 
+                mouse.x = targetX; mouse.y = targetY;
+            }
+        });
+
+        function updateInteractions() {
+            currentX += (targetX - currentX) * 0.05; 
+            currentY += (targetY - currentY) * 0.05;
+
+            cursorFlare.style.left = `${currentX}px`; cursorFlare.style.top = `${currentY}px`;
+
+            const centerX = width / 2; const centerY = height / 2;
+            const rotateY = ((currentX - centerX) / centerX) * 3.5; 
+            const rotateX = -((currentY - centerY) / centerY) * 3.5; 
+
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            requestAnimationFrame(updateInteractions);
+        }
+        updateInteractions();
+
+        // === BUTTON RIPPLE (ALERTS REMOVED, REDIRECT HANDLED ON PAGE LOAD) ===
+        const btn = document.getElementById('cta-btn');
+        btn.addEventListener('click', function(e) {
+            
+            // Ripple Animation
+            let ripple = document.createElement('div');
+            ripple.classList.add('ripple');
+            this.appendChild(ripple);
+            
+            let rect = this.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            let y = e.clientY - rect.top;
+            
+            ripple.style.left = `${x}px`; ripple.style.top = `${y}px`;
+            let size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = `${size}px`;
+            ripple.style.transform = `translate(-50%, -50%) scale(0)`;
+            
+            setTimeout(() => { ripple.remove(); }, 600);
+        });
+
+    </script>
+</body>
+</html>
